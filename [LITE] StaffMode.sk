@@ -1,0 +1,341 @@
+
+#!			       					For Starters
+#
+# 							* Booleans = true or false, 
+#				   			   Exemple = sound: true
+#                       Do not change these to "true" or "false" 
+#
+#							* String = "Piece of text"
+#						 Exemple = "Hi, am i a piece of text?"
+#						  Do not change these to true or false
+#
+#							* What am i trying to say ?
+#				 Don't change booleans and strings from their format
+#
+#!			       					Requirements
+#
+#							* SkQuery (3.6.0-Lime)
+#							* SkRayFall (1.9.15)
+#							* json.sk (2.3)
+#							* A working brain
+#
+#!			       					Skript Info
+#
+#							* Version
+#							  - 0.1-LITE
+#							* Tested Minecraft Version
+#							  - 1.12.2
+#
+#!			       					Credits
+#
+#							* iMPDevMC for the Skript
+#							* Eyesniper2 for SkRayFall
+#							* LimeGlass and w00tmast3r for SkQuery
+#
+#!			       					Note for 0.1
+#
+#							* Some command will, temp, require other plugins
+#							   	  Like /tp or /v, while I'm making them.
+#
+
+on load:
+	send "[STAFF] Thanks for using my Skript <3" to console
+	send "[STAFF] Loaded Staff mode" to console
+
+variables:
+	# {superstaff::%player%.} « Do not put this here. it will break the function
+
+options:
+
+	prefix: &c&lSERVER &8»
+	sub prefix: &8●
+	permission: staffmode.user
+	permission message: &c&lSERVER &8» &fYou aren't allowed to use this !
+
+	sound: block.anvil.place
+	enable gamemode: adventure
+	disable gamemode: survival
+
+	title: true
+	play sound: true
+	fly mode: true
+
+	message enable: &fStaff mode enabled
+	message disable: &fStaff mode disabled
+
+	title title: &9&lSERVER
+	title subtitle: &f&lStaff mode enabled
+	title subtitle disabled: &f&lStaff mode disabled
+
+	flight enabled: &fFlight enabled
+	flight disabled: &fFlight disabled
+
+	staffmode damage: false
+
+	staffmode default comamnd: ban
+	staffmode hover username: &7Click here to ban %arg 1%
+	staffmode hover uuid: &7Click here to copy UUID
+	staffmode hover ip: &7Click here to ip ban %arg 1%
+	staffmode hover ip disabled: &cFeature disabled
+	staffmode hover invalid: &cUnknown Command.
+	staffmode hover unknown player: &cUnknown Player.
+
+	staffmode hover froze: &7Click to unfreeze %arg 1%
+	staffmode hover unfroze: &7Click here to freeze %arg 1%
+
+	staffmode hover inventory offline: &fPlayer offline 
+	staffmode hover inventory invalid: &cInvalid syntax
+
+	# StaffMode Addons, won't do anything yet.  ! (https://github.com/FantasiaNetwork/SkriptAddons)
+
+	devmc status: false
+
+	# Item Options
+
+	item show ip: false
+	block pane for air: false
+
+	# Items
+
+	item clock: &9&lRandom Player &8▏ &fRIGHT CLICK
+	item nametag: &9&lPlayer Inventory &8▏ &fRIGHT CLICK
+	item ice: &9&lFreeze &8▏ &fRIGHT CLICK
+	item book: &9&lPlayer Inforrmation &8▏ &fRIGHT CLICK
+	item nether star: &9&lVanish &8▏ &fRIGHT CLICK
+	item slimeball: &9&l? &8▏ &fRIGHT CLICK
+	item feather: &9&lFly Mode &8▏ &fRIGHT CLICK
+
+	item clock tp: &fYou teleported to&e
+
+	# Inventory
+
+	inventory name: &fInventory of &e%arg 1%
+
+	# Server 
+
+	server appeal: https://domain.net/appeals
+	ban prefix: &c&lSERVER NAME
+
+
+command /staffmode [<text>]:
+	aliases: staff, ss, superstaff, smode
+	permission: {@permission}
+	permission message: {@permission message}
+	trigger:
+		if {superstaff::%player%} isn't set:
+			set {superstaff::%player%} to true
+
+			if {@play sound} is true:
+				play sound "{@sound}" at the player
+
+			set the player's gamemode to {@enable gamemode}
+
+			if {@fly mode} is true:
+				set player's flight mode to true
+				set {ss.doublejump.%player%} to false
+			if {@fly mode} is false:
+				set player's flight mode to false
+				set {ss.doublejump.%player%} to true
+
+			if {@title} is true:
+				send player title "{@title title}" with subtitle "{@title subtitle}" 
+			if {@title} is false:
+				send "{@prefix} {@message enable}"
+
+			loop integers from 0 to 35:
+				add 1 to {index}
+				set {superstaff::%player%::%{index}%} to slot loop-value of player
+				set slot loop-value of player to air
+
+			set {helmet::%player%} to player's helmet
+			set {chestplate::%player%} to player's chestplate
+			set {leggings::%player%} to player's leggings
+			set {boots::%player%} to player's boots
+			set {offhand::%player%} to slot 40 of player's inventory
+			set slot 40 of player's inventory to air
+
+			set player's helmet to air
+			set player's chestplate to air
+			set player's leggings to air
+			set player's boots to air
+			
+			wait 1 tick
+
+			set slot 0 of player's inventory to clock named "{@item clock}"
+			set slot 1 of player's inventory to name tag named "{@item nametag}" 
+			set slot 2 of player's inventory to ice named "{@item ice}"
+			set slot 4 of player's inventory to book named "{@item book}" 
+			set slot 6 of player's inventory to nether star named "{@item nether star}"
+			set slot 7 of player's inventory to slimeball named "{@item slimeball}" 
+			set slot 8 of player's inventory to feather named "{@item feather}" 
+
+			set {ss.drops.%player%} to true
+            
+		else:
+
+			delete {superstaff::%player%}
+
+			if {@play sound} is true:
+				play sound "{@sound}" at the player
+
+			set the player's gamemode to {@disable gamemode}
+
+			if {@title} is true:
+				send player title "{@title title}" with subtitle "{@title subtitle disabled}" 
+			if {@title} is false:
+				send "{@prefix} {@message disable}"
+
+			set {ss.drops.%player%} to false
+
+			set {_slot} to 0
+			loop {superstaff::%player%::*}:
+				set slot {_slot} of player's inventory to loop-value
+				add 1 to {_slot}
+				set slot 40 of player's inventory to {offhand::%player%}
+				set player's helmet to {helmet::%player%}
+				set player's chestplate to {chestplate::%player%}
+				set player's leggings to {leggings::%player%}
+			set player's boots to {boots::%player%}
+			delete {superstaff::%player%::*}
+			set {ss.drops.%player%} to false
+
+			stop
+
+command /§fly [<text>]:
+	permission: {@permission}
+	trigger:
+		if player's flight mode is true:
+			set player's flight mode to false
+			send "{@prefix} {@flight disabled}"
+			stop
+		if player's flight mode is false:
+			set player's flight mode to true
+			send "{@prefix} {@flight enabled}"
+			stop 
+
+command /ps [<offline player>]:
+	permission: {@permission}
+	permission message: {@permission message}
+	trigger:
+		if arg 1 is not set:
+			json("%player%", "{@sub prefix} &fNo player is set. please click here to get syntax.||sgt:/ps <player>||ttp: %nl% {@sub prefix} &7{@staffmode hover invalid} %nl%")
+		if arg 1 is set:
+			if arg 1 is not online:
+				json("%player%", "{@sub prefix} &fThis player may not be online at this moment.||sgt:/ps <player>||ttp: %nl% {@sub prefix} &7{@staffmode hover unknown player} %nl%")
+
+		if arg 1 is set:
+			if arg 1 is online:
+				if {@item show ip} is false:
+					json("%player%", "{@prefix} &e%arg 1%'s &7Informations||cmd:/tp %arg 1%||ttp: %nl% {@sub prefix} &7Teleport to %arg 1% %nl% &8* &7&oInstant Teleport! %nl%")
+					json("%player%", "{@sub prefix} &7Player's username &8» &7%arg 1%||sgt:/{@staffmode default comamnd} %arg 1% <reason>||ttp: %nl% {@sub prefix} &7{@staffmode hover username} %nl%")
+					json("%player%", "{@sub prefix} &7Player's UUID &8» &7%arg 1's uuid%||sgt:%arg 1's uuid%||ttp: %nl% {@sub prefix} &7{@staffmode hover uuid} %nl%")
+					json("%player%", "{@sub prefix} &7Player's IP &8» &cThis setting has been disabled by administators||sgt:/ps <username>||ttp: %nl% {@sub prefix} &7{@staffmode hover ip disabled} %nl%")
+				if {@item show ip} is true:
+					json("%player%", "{@prefix} &e%arg 1%'s &7Informations||cmd:/tp %arg 1%||ttp: %nl% {@sub prefix} &7Teleport to %arg 1% %nl% &8* &7&oInstant Teleport! %nl%")
+					json("%player%", "{@sub prefix} &7Player's username &8» &7%arg 1%||sgt:/{@staffmode default comamnd} %arg 1% <reason>||ttp: %nl% {@sub prefix} &7{@staffmode hover username} %nl%")
+					json("%player%", "{@sub prefix} &7Player's UUID &8» &7%arg 1's uuid%||sgt:%arg 1's uuid%||ttp: %nl% {@sub prefix} &7{@staffmode hover uuid} %nl%")
+					json("%player%", "{@sub prefix} &7Player's IP &8» &7%arg 1's ip%||sgt:/ipban %arg 1's ip%||ttp: %nl% {@sub prefix} &7{@staffmode hover ip} %nl%")
+
+command /freeze [<offline player>]:
+	permission: {@permission}
+	permission message: {@permission message}
+	trigger:
+		if arg 1 is set:
+			if arg 1 is online:
+				json("%player%", "{@sub prefix} &fYou froze &e%arg 1%, &cclick here &fto unfreeze &e%arg 1%||sgt:/unfreeze %arg 1%||ttp: %nl% {@sub prefix} &7{@staffmode hover froze} %nl%")
+				set {frozen.%player%} to true
+
+command /unfreeze [<offline player>]:
+	permission: {@permission}
+	permission message: {@permission message}
+	trigger:
+		if arg 1 is set:
+			if arg 1 is online:
+				json("%player%", "{@sub prefix} &fYou unfroze &e%arg 1%, &cclick here &fto freeze &e%arg 1%||sgt:/unfreeze %arg 1%||ttp: %nl% {@sub prefix} &7{@staffmode hover unfroze} %nl%")
+				set {frozen.%player%} to false
+
+on right click on player with book:
+	if player has permission "{@permission}":
+		if tool's name is "{@item book}":
+			make player execute command "/ps %clicked entity%"
+
+on right click with feather:
+	if player has permission "{@permission}":
+		if tool's name is "{@item feather}":
+			make player execute "/§fly"
+
+on right click on player with ice:
+	if player has permission "{@permission}":
+		if tool's name is "{@item ice}":
+			make player execute "/freeze %clicked entity%"
+on quit:
+	if {frozen.%player%} is true:
+		ban the player due to "&r {@ban prefix} %nl% &f&oYou have been banned from this server %nl% &7Staff &8➟ &cCONSOLE %nl% &7Reason &8➟ &cLoggin out while frozen %nl% &f&oTo appeal, please visit {@server appeal}"
+
+on any move:
+	if {frozen.%player%} is true:
+		cancel event
+
+
+on right click with clock:
+	if name of player's tool is "{@item clock}":
+		loop all players:
+			add loop-player to {players.tp::*}
+		set {player.tp.%player%} to a random element out of {players.tp::*}
+		teleport player to {player.tp.%player%}
+		delete {players.tp::*}
+		send "{@prefix} {@item clock tp} %{player.tp.%player%}%"
+
+
+command /inventory [<offline player>]:
+	permission: {@permission}
+	permission message: {@permission message}
+	trigger:
+		if arg 1 is set:
+			if arg 1 is online:
+				wait 1 tick
+				set {target.%player%} to arg 1
+				open chest with 5 rows named "{@inventory name}" to player
+				set {_playerinv} to arg 1
+				set {_slot} to 0
+				loop 36 times:
+					set {inventory.%arg 1%.%{_slot}%} to slot {_slot} of arg 1's inventory
+					add 1 to {_slot}
+				set {_slot} to 0
+				set {_slotmenu} to 9
+				wait 1 tick
+				loop 36 times:
+					format slot {_slotmenu} of player with {inventory.%arg 1%.%{_slot}%} to close
+					add 1 to {_slot}
+					add 1 to {_slotmenu}
+				set {armorview.helmet.%arg 1%} to arg 1's helmet
+				set {armorview.chestplate.%arg 1%} to arg 1's chestplate
+				set {armorview.leggings.%arg 1%} to arg 1's leggings
+				set {armorview.boots.%arg 1%} to arg 1's boots
+				format slot 0 of player with {armorview.helmet.%arg 1%} to close
+				format slot 1 of player with {armorview.chestplate.%arg 1%} to close
+				format slot 2 of player with {armorview.leggings.%arg 1%} to close
+				format slot 3 of player with {armorview.boots.%arg 1%} to close
+			else:
+				json("%player%", "{@sub prefix} &fThat player doesn't seem to be online.||sgt:/inventory ||ttp: %nl% {@sub prefix} &7{@staffmode hover inventory offline} %nl%")
+		else:
+			json("%player%", "{@sub prefix} &fHm, the syntax seems to be incorrect, click to get syntax.||sgt:/inventory <player>||ttp: %nl% {@sub prefix} &7{@staffmode hover inventory invalid} %nl%")
+
+
+on right click with nether star:
+	if player has permission "{@permission}":
+		if tool's name is "{@item nether star}":
+			make player execute "/v"
+
+on inventory click:
+	if {superstaff::%player%} is true:
+		cancel event
+
+on drop:
+	if {superstaff::%player%} is true:
+		cancel event
+
+on damage:
+	if {superstaff::%victim%} is true:
+		if {@staffmode damage} is false:
+			cancel event
